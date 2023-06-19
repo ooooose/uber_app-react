@@ -60,7 +60,7 @@ class Api::V1::LineFoodsController < ApplicationController
     if ordered_food.line_food.present?
       @line_food = ordered_food.line_food
       @line_food.attributes = {
-        count: ordered_food.line_food.count + params[:count].
+        count: ordered_food.line_food.count + params[:count],
         active: true
       }
     else

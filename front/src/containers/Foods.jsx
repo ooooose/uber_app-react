@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { COLORS } from '../style_constants';
 import { LocalMallIcon } from '../components/Icons';
+
+import { NewOrderConfirmDialog } from '../components/NewOrderConfirmDialog';
+import { postLineFoods, replaceLineFoods } from '../apis/line_foods';
+import { HTTP_STATUS_CODE } from '../constants';
 
 import { FoodWrapper } from '../components/FoodWrapper';
 import { Skeleton } from '@mui/material';
@@ -51,19 +55,19 @@ const ItemWrapper = styled.div`
   margin: 16px;
 `;
 
-const submitOrder = () => {
-  console.log('登録ボタンが押された！');
-}
-
 export const Foods = () => {
   const initialState = {
     isOpenOrderDialog: false,
     selectedFood: null,
     selectedFoodCount: 1,
+    isOpenNewOrderDialog: false,
+    existingRestaurantName: '',
+    newRestaurantName: '',
   }
   const [state, setState] = useState(initialState);
   const location = useLocation();
   console.log(location);
+  const navigate = useNavigate();
   const [foodsState, dispatch] = useReducer(foodsReducer, foodsInitialState);
   useEffect(() => {
     dispatch({type: foodsActionTypes.FETCHING});
@@ -77,6 +81,34 @@ export const Foods = () => {
       });
     })
   }, []);
+
+  const submitOrder = () => {
+    postLineFoods({
+      foodId: state.selectedFood.id,
+      count: state.selectedFoodCount,
+    }).then(() => navigate('/orders'))
+      .catch((e) => {
+        console.log(e)
+        if (e.response.status === HTTP_STATUS_CODE.NOT_ACCEPTABLE) {
+          setState({
+            ...state,
+            isOpenOrderDialog: false,
+            isOpenNewOrderDialog: true,
+            existingResutaurautName: e.response.data.existing_restaurant,
+            newResutaurautName: e.response.data.new_restaurant,
+          })
+        } else {
+          throw e;
+        }
+      })
+  };
+
+  const replaceOrder = () => {
+    replaceLineFoods({
+      foodId: state.selectedFood.id,
+      count: state.selectedFoodCount,
+    }).then(() => navigate('/orders'))
+  };
 
   return (
     <>
@@ -140,6 +172,16 @@ export const Foods = () => {
             selectedFood: null,
             selectedFoodCount: 1,
           })}
+        />
+      }
+      {
+        state.isOpenNewOrderDialog &&
+        <NewOrderConfirmDialog
+          isOpen={state.isOpenNewOrderDialog}
+          onClose={() => setState({ ...state, isOpenNewOrderDialog: false })}
+          existingResutaurautName={state.existingRestaurantName}
+          newResutaurautName={state.newRestaurantName}
+          onClickSubmit={() => replaceOrder()}
         />
       }
     </>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { COLORS } from '../style_constants';
@@ -65,13 +65,12 @@ export const Foods = () => {
     newRestaurantName: '',
   }
   const [state, setState] = useState(initialState);
-  const location = useLocation();
-  console.log(location);
+  const { restaurantsId } = useParams();
   const navigate = useNavigate();
   const [foodsState, dispatch] = useReducer(foodsReducer, foodsInitialState);
   useEffect(() => {
     dispatch({type: foodsActionTypes.FETCHING});
-    fetchFoods(1)
+    fetchFoods(restaurantsId)
     .then((data) => {
       dispatch({
         type: foodsActionTypes.FETCH_SUCCESS,
@@ -90,12 +89,13 @@ export const Foods = () => {
       .catch((e) => {
         console.log(e)
         if (e.response.status === HTTP_STATUS_CODE.NOT_ACCEPTABLE) {
+          console.log(e);
           setState({
             ...state,
             isOpenOrderDialog: false,
             isOpenNewOrderDialog: true,
-            existingResutaurautName: e.response.data.existing_restaurant,
-            newResutaurautName: e.response.data.new_restaurant,
+            existingRestaurantName: e.response.data.existing_restaurant,
+            newRestaurantName: e.response.data.new_restaurant,
           })
         } else {
           throw e;
@@ -179,8 +179,8 @@ export const Foods = () => {
         <NewOrderConfirmDialog
           isOpen={state.isOpenNewOrderDialog}
           onClose={() => setState({ ...state, isOpenNewOrderDialog: false })}
-          existingResutaurautName={state.existingRestaurantName}
-          newResutaurautName={state.newRestaurantName}
+          existingRestaurantName={state.existingRestaurantName}
+          newRestaurantName={state.newRestaurantName}
           onClickSubmit={() => replaceOrder()}
         />
       }

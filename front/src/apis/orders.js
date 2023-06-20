@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { orders } from '../urls/index';
+import { orders } from '../urls/index'
 
 export const postOrder = (params) => {
   return axios.post(orders,
@@ -10,5 +10,5 @@ export const postOrder = (params) => {
   .then(res => {
     return res.data
   })
-  .catch((e) => console.error(e));
+  .catch((e) => console.error(e))
 }

@@ -55,14 +55,14 @@ export const Orders = () => {
     }, []);
 
     const postLineFoods = () => {
-      dispatch({ type: lineFoodsActionTypes.POSTING });
-      postOrder({
-        line_foods_ids: state.lineFoodsSummary.line_foods_ids,
-      }).then(() => {
-        dispatch({ type: lineFoodsActionTypes.POST_SUCCESS });
+        dispatch({ type: lineFoodsActionTypes.POSTING });
+        postOrder({
+          line_food_ids: state.lineFoodsSummary.line_food_ids,
+        }).then(() => {
+          dispatch({ type: lineFoodsActionTypes.POST_SUCCESS });
+        });
         window.location.reload();
-      });
-    };
+      };
 
     const orderButtonLabel = () => {
       switch(state.postState) {
